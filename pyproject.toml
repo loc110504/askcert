@@ -1,0 +1,107 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "askcert"
+dynamic = ["version"]
+description = "Certifiable Boolean reasoning under incomplete evidence: TRUE/FALSE/UNKNOWN decisions, subset-minimal certificates, relevant unknowns and witnesses"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Hoang-Loc Cao" }]
+maintainers = [{ name = "Hoang-Loc Cao" }]
+keywords = [
+    "symbolic reasoning",
+    "boolean logic",
+    "decision certification",
+    "neuro-symbolic AI",
+    "incomplete evidence",
+    "BDD",
+    "rule engine",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "hypothesis>=6.100",
+    "z3-solver>=4.12",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "build>=1.2",
+    "twine>=5",
+]
+
+[project.urls]
+Homepage = "https://github.com/loc110504/askcert"
+Documentation = "https://github.com/loc110504/askcert/tree/main/docs"
+Issues = "https://github.com/loc110504/askcert/issues"
+Changelog = "https://github.com/loc110504/askcert/blob/main/CHANGELOG.md"
+
+[project.scripts]
+askcert = "askcert.cli:main"
+
+[tool.hatch.version]
+path = "src/askcert/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/askcert"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/askcert",
+    "tests",
+    "examples",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CITATION.cff",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-q --strict-markers"
+markers = [
+    "slow: long-running correctness corpus (run with -m slow)",
+    "z3: differential tests that need z3-solver",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["askcert"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src/askcert"]

@@ -1,0 +1,7 @@
+{"enrolled": true, "gpa_ok": true, "income_ok": true, "resident": true, "has_sanction": false}
+{"enrolled": true, "gpa_ok": true, "resident": true, "has_sanction": false}
+{"enrolled": true, "gpa_ok": true, "on_waiver": true, "resident": true, "has_sanction": null}
+
+{"enrolled": false}
+{"enrolled": true, "gpa_ok": true, "income_ok": true, "resident": true, "has_sanction": true}
+{}

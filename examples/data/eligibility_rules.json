@@ -1,0 +1,9 @@
+{
+  "schema_version": "1",
+  "atoms": ["enrolled", "gpa_ok", "income_ok", "on_waiver", "resident", "has_sanction"],
+  "rules": {
+    "academic_ok": {"all": ["enrolled", "gpa_ok"]},
+    "financial_ok": {"any": ["income_ok", "on_waiver"]},
+    "eligible": {"all": ["academic_ok", "financial_ok", "resident"], "unless": ["has_sanction"]}
+  }
+}

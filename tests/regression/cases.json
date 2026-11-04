@@ -1,0 +1,1475 @@
+{
+ "format": 1,
+ "cases": [
+  {
+   "id": "paper_and3_unknown",
+   "description": "Running example g=a&b&c, K={a:1,b:1}: UNKNOWN, only c is relevant",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "c"
+    ],
+    "witnesses": {
+     "true": {
+      "a": true,
+      "b": true,
+      "c": true
+     },
+     "false": {
+      "a": true,
+      "b": true,
+      "c": false
+     }
+    }
+   }
+  },
+  {
+   "id": "paper_and3_false",
+   "description": "Running example, K={a:1,b:1,c:0}: FALSE, certificate {c:0} (a and b are dropped)",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true,
+    "c": false
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "c": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "paper_and3_true",
+   "description": "Running example, all facts true: TRUE needs every fact",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true,
+    "c": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "a": true,
+     "b": true,
+     "c": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "paper_and3_empty",
+   "description": "Running example with no evidence",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "a",
+     "b",
+     "c"
+    ],
+    "witnesses": {
+     "true": {
+      "a": true,
+      "b": true,
+      "c": true
+     },
+     "false": {
+      "a": false,
+      "b": false,
+      "c": false
+     }
+    }
+   }
+  },
+  {
+   "id": "paper_and3_none_values",
+   "description": "None values are unknown, never False",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true,
+    "c": null
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "c"
+    ],
+    "witnesses": {
+     "true": {
+      "a": true,
+      "b": true,
+      "c": true
+     },
+     "false": {
+      "a": true,
+      "b": true,
+      "c": false
+     }
+    }
+   }
+  },
+  {
+   "id": "tautology_unknown_atom",
+   "description": "a or not a is TRUE with a unknown (completion semantics, not Kleene)",
+   "rules": {
+    "g": {
+     "any": [
+      "a",
+      "!a"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "TRUE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "tautology_known_atom",
+   "description": "a or not a with a known: certificate is empty",
+   "rules": {
+    "g": {
+     "any": [
+      "a",
+      "!a"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "contradiction_unknown_atom",
+   "description": "a and not a is FALSE with a unknown",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "!a"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "FALSE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "contradiction_known_atom",
+   "description": "a and not a with a known: certificate is empty",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      {
+       "not": "a"
+      }
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": false
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "tautology_through_rule",
+   "description": "g = p or not p where p is itself a rule",
+   "rules": {
+    "p": {
+     "all": [
+      "a",
+      "b"
+     ]
+    },
+    "g": {
+     "any": [
+      "p",
+      {
+       "not": "p"
+      }
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "alt_or_both_true",
+   "description": "a or b with a=b=1: both {a:1} and {b:1} suffice; lexicographic deletion drops a first -> {b:1}",
+   "rules": {
+    "g": {
+     "any": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "b": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "alt_and_both_false",
+   "description": "a and b with a=b=0: lexicographic deletion drops a first -> {b:0}",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": false,
+    "b": false
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "b": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "alt_overlapping_sets",
+   "description": "(a&b) or (b&c) with all true: {a,b} and {b,c} are minimal; deletion order picks {b,c}",
+   "rules": {
+    "g": {
+     "any": [
+      {
+       "all": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "all": [
+        "b",
+        "c"
+       ]
+      }
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true,
+    "c": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "b": true,
+     "c": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "alt_three_way",
+   "description": "(a&b) or c, all true: deleting a then b leaves {c:1}",
+   "rules": {
+    "g": {
+     "any": [
+      {
+       "all": [
+        "a",
+        "b"
+       ]
+      },
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true,
+    "c": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "c": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "alt_order_is_by_name_not_insertion",
+   "description": "Deletion order is sorted atom name, not evidence/formula order: z listed first, a is still deleted first",
+   "rules": {
+    "g": {
+     "any": [
+      "z",
+      "a"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "z": true,
+    "a": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "z": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "exception_unknown_is_not_false",
+   "description": "Classical negation of exceptions: an unknown exception blocks TRUE (not negation-as-failure)",
+   "rules": {
+    "g": {
+     "all": [
+      "a"
+     ],
+     "unless": [
+      "e"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "e"
+    ],
+    "witnesses": {
+     "true": {
+      "a": true,
+      "e": false
+     },
+     "false": {
+      "a": true,
+      "e": true
+     }
+    }
+   }
+  },
+  {
+   "id": "exception_fires",
+   "description": "Exception e=1 makes g FALSE; a is dropped from the certificate",
+   "rules": {
+    "g": {
+     "all": [
+      "a"
+     ],
+     "unless": [
+      "e"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "e": true
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "e": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "exception_absent",
+   "description": "e=0 and a=1: TRUE needs both facts",
+   "rules": {
+    "g": {
+     "all": [
+      "a"
+     ],
+     "unless": [
+      "e"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "e": false
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "a": true,
+     "e": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "exception_core_false",
+   "description": "Core false decides FALSE regardless of the unknown exception",
+   "rules": {
+    "g": {
+     "all": [
+      "a"
+     ],
+     "unless": [
+      "e"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": false
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "a": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "flat_list_exception_unknown",
+   "description": "Flat-list (PYTHEN-style) form: ANY(conditions) unless exceptions, exception unknown",
+   "rules": {
+    "rules": [
+     {
+      "name": "eligible",
+      "op": "ANY",
+      "conditions": [
+       "resident",
+       "valid_visa"
+      ],
+      "exceptions": [
+       "restricted"
+      ]
+     }
+    ]
+   },
+   "goal": "eligible",
+   "evidence": {
+    "resident": true
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "restricted"
+    ],
+    "witnesses": {
+     "true": {
+      "resident": true,
+      "restricted": false,
+      "valid_visa": false
+     },
+     "false": {
+      "resident": true,
+      "restricted": true,
+      "valid_visa": false
+     }
+    }
+   }
+  },
+  {
+   "id": "flat_list_exception_fires",
+   "description": "Flat-list form, restricted=1 forces FALSE",
+   "rules": {
+    "rules": [
+     {
+      "name": "eligible",
+      "op": "ANY",
+      "conditions": [
+       "resident",
+       "valid_visa"
+      ],
+      "exceptions": [
+       "restricted"
+      ]
+     }
+    ]
+   },
+   "goal": "eligible",
+   "evidence": {
+    "resident": true,
+    "restricted": true
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "restricted": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "flat_list_all_conditions_false",
+   "description": "Flat-list form, both conditions false -> FALSE; both facts are needed",
+   "rules": {
+    "rules": [
+     {
+      "name": "eligible",
+      "op": "ANY",
+      "conditions": [
+       "resident",
+       "valid_visa"
+      ],
+      "exceptions": [
+       "restricted"
+      ]
+     }
+    ]
+   },
+   "goal": "eligible",
+   "evidence": {
+    "resident": false,
+    "valid_visa": false
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "resident": false,
+     "valid_visa": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "exception_via_nested_rule",
+   "description": "Exception defined by another rule: g = a unless (x and not y)",
+   "rules": {
+    "blocked": {
+     "all": [
+      "x",
+      "!y"
+     ]
+    },
+    "g": {
+     "all": [
+      "a"
+     ],
+     "unless": [
+      "blocked"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "x": true
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "y"
+    ],
+    "witnesses": {
+     "true": {
+      "a": true,
+      "x": true,
+      "y": true
+     },
+     "false": {
+      "a": true,
+      "x": true,
+      "y": false
+     }
+    }
+   }
+  },
+  {
+   "id": "repeated_fact_outer_true",
+   "description": "outer = (a|b)&a == a; repeated atom a across nested rules; b is dropped",
+   "rules": {
+    "inner": {
+     "any": [
+      "a",
+      "b"
+     ]
+    },
+    "outer": {
+     "all": [
+      "inner",
+      "a"
+     ]
+    },
+    "taut": {
+     "any": [
+      "!a",
+      "inner"
+     ]
+    },
+    "contra": {
+     "all": [
+      "a",
+      {
+       "not": "inner"
+      }
+     ]
+    }
+   },
+   "goal": "outer",
+   "evidence": {
+    "a": true,
+    "b": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "a": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "repeated_fact_outer_false",
+   "description": "outer with a=0,b=1: FALSE, certificate {a:0}",
+   "rules": {
+    "inner": {
+     "any": [
+      "a",
+      "b"
+     ]
+    },
+    "outer": {
+     "all": [
+      "inner",
+      "a"
+     ]
+    },
+    "taut": {
+     "any": [
+      "!a",
+      "inner"
+     ]
+    },
+    "contra": {
+     "all": [
+      "a",
+      {
+       "not": "inner"
+      }
+     ]
+    }
+   },
+   "goal": "outer",
+   "evidence": {
+    "a": false,
+    "b": true
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "a": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "repeated_fact_outer_unknown",
+   "description": "outer with b=1 only: UNKNOWN, a relevant, b (in the cone) irrelevant",
+   "rules": {
+    "inner": {
+     "any": [
+      "a",
+      "b"
+     ]
+    },
+    "outer": {
+     "all": [
+      "inner",
+      "a"
+     ]
+    },
+    "taut": {
+     "any": [
+      "!a",
+      "inner"
+     ]
+    },
+    "contra": {
+     "all": [
+      "a",
+      {
+       "not": "inner"
+      }
+     ]
+    }
+   },
+   "goal": "outer",
+   "evidence": {
+    "b": true
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "a"
+    ],
+    "witnesses": {
+     "true": {
+      "a": true,
+      "b": true
+     },
+     "false": {
+      "a": false,
+      "b": true
+     }
+    }
+   }
+  },
+  {
+   "id": "repeated_fact_taut_through_rules",
+   "description": "taut = not a or (a|b) is a tautology across rules",
+   "rules": {
+    "inner": {
+     "any": [
+      "a",
+      "b"
+     ]
+    },
+    "outer": {
+     "all": [
+      "inner",
+      "a"
+     ]
+    },
+    "taut": {
+     "any": [
+      "!a",
+      "inner"
+     ]
+    },
+    "contra": {
+     "all": [
+      "a",
+      {
+       "not": "inner"
+      }
+     ]
+    }
+   },
+   "goal": "taut",
+   "evidence": {
+    "a": false
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "repeated_fact_contra_through_rules",
+   "description": "contra = a and not(a|b) is a contradiction across rules",
+   "rules": {
+    "inner": {
+     "any": [
+      "a",
+      "b"
+     ]
+    },
+    "outer": {
+     "all": [
+      "inner",
+      "a"
+     ]
+    },
+    "taut": {
+     "any": [
+      "!a",
+      "inner"
+     ]
+    },
+    "contra": {
+     "all": [
+      "a",
+      {
+       "not": "inner"
+      }
+     ]
+    }
+   },
+   "goal": "contra",
+   "evidence": {
+    "a": true,
+    "b": false
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "diamond_shared_atom",
+   "description": "g = (a|b) & (a&c) == a&c: shared atom a through two rules",
+   "rules": {
+    "p": {
+     "any": [
+      "a",
+      "b"
+     ]
+    },
+    "q": {
+     "all": [
+      "a",
+      "c"
+     ]
+    },
+    "g": {
+     "all": [
+      "p",
+      "q"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true,
+    "c": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "a": true,
+     "c": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "xor_unknown_third",
+   "description": "xor(a,b,c) with a=1,b=0: c decides",
+   "rules": {
+    "g": {
+     "xor": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": false
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "c"
+    ],
+    "witnesses": {
+     "true": {
+      "a": true,
+      "b": false,
+      "c": false
+     },
+     "false": {
+      "a": true,
+      "b": false,
+      "c": true
+     }
+    }
+   }
+  },
+  {
+   "id": "xor_all_known",
+   "description": "xor(a,b,c) all true is odd parity -> TRUE; every fact needed",
+   "rules": {
+    "g": {
+     "xor": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": true,
+    "c": true
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "a": true,
+     "b": true,
+     "c": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "xor_empty_evidence_witness_order",
+   "description": "Witness DFS tries False first: smallest odd/even worlds",
+   "rules": {
+    "g": {
+     "xor": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "a",
+     "b"
+    ],
+    "witnesses": {
+     "true": {
+      "a": false,
+      "b": true
+     },
+     "false": {
+      "a": false,
+      "b": false
+     }
+    }
+   }
+  },
+  {
+   "id": "implies_false_antecedent",
+   "description": "a -> b with a=0 is TRUE; certificate {a:0}",
+   "rules": {
+    "g": {
+     "implies": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": false
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "a": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "implies_violated",
+   "description": "a -> b with a=1,b=0 is FALSE",
+   "rules": {
+    "g": {
+     "implies": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": true,
+    "b": false
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "a": true,
+     "b": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "atom_goal_decided",
+   "description": "An atom may be the goal; evidence outside its cone is ignored",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "goal": "a",
+   "evidence": {
+    "a": false,
+    "b": true
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "a": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "atom_goal_unknown",
+   "description": "Atom goal with unknown value: itself is the relevant unknown",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "goal": "b",
+   "evidence": {
+    "a": true
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "b"
+    ],
+    "witnesses": {
+     "true": {
+      "b": true
+     },
+     "false": {
+      "b": false
+     }
+    }
+   }
+  },
+  {
+   "id": "constants_true",
+   "description": "Constant rules have an empty cone and empty certificate",
+   "rules": {
+    "yes": true,
+    "no": false,
+    "g": {
+     "all": [
+      "yes",
+      {
+       "not": "no"
+      }
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "TRUE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "empty_all_is_true",
+   "description": "Empty all is TRUE",
+   "rules": {
+    "g": {
+     "all": []
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "TRUE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "empty_any_is_false",
+   "description": "Empty any is FALSE",
+   "rules": {
+    "g": {
+     "any": []
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "FALSE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "empty_xor_is_false",
+   "description": "Empty xor is FALSE",
+   "rules": {
+    "g": {
+     "xor": []
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "FALSE",
+    "certificate": {},
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "out_of_cone_evidence",
+   "description": "Evidence on atoms outside the goal's cone is allowed and ignored",
+   "rules": {
+    "g": {
+     "all": [
+      "a",
+      "b"
+     ]
+    },
+    "h": {
+     "any": [
+      "c",
+      "d"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": false,
+    "c": true,
+    "d": true
+   },
+   "expected": {
+    "status": "FALSE",
+    "certificate": {
+     "a": false
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "absorption_unknown",
+   "description": "a | (a&b) == a: b is in the cone but not relevant",
+   "rules": {
+    "g": {
+     "any": [
+      "a",
+      {
+       "all": [
+        "a",
+        "b"
+       ]
+      }
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "a"
+    ],
+    "witnesses": {
+     "true": {
+      "a": true,
+      "b": false
+     },
+     "false": {
+      "a": false,
+      "b": false
+     }
+    }
+   }
+  },
+  {
+   "id": "or3_witness_order",
+   "description": "Witnesses are the lexicographically smallest worlds",
+   "rules": {
+    "g": {
+     "any": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {},
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "a",
+     "b",
+     "c"
+    ],
+    "witnesses": {
+     "true": {
+      "a": false,
+      "b": false,
+      "c": true
+     },
+     "false": {
+      "a": false,
+      "b": false,
+      "c": false
+     }
+    }
+   }
+  },
+  {
+   "id": "unknown_is_not_false_negation",
+   "description": "not a with a unknown stays UNKNOWN",
+   "rules": {
+    "g": {
+     "not": "a"
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "a": null
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "a"
+    ],
+    "witnesses": {
+     "true": {
+      "a": false
+     },
+     "false": {
+      "a": true
+     }
+    }
+   }
+  },
+  {
+   "id": "shorthand_bang",
+   "description": "Shorthand form (no rules key) and the !x spelling",
+   "rules": {
+    "g": {
+     "all": [
+      "!a",
+      "b"
+     ]
+    }
+   },
+   "goal": "g",
+   "evidence": {
+    "b": true,
+    "a": false
+   },
+   "expected": {
+    "status": "TRUE",
+    "certificate": {
+     "a": false,
+     "b": true
+    },
+    "relevant_unknowns": [],
+    "witnesses": null
+   }
+  },
+  {
+   "id": "declared_atoms_unused_atom_goal",
+   "description": "Declared-but-unused atom is a valid goal",
+   "rules": {
+    "schema_version": "1",
+    "atoms": [
+     "a",
+     "spare"
+    ],
+    "rules": {
+     "g": "a"
+    }
+   },
+   "goal": "spare",
+   "evidence": {},
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "spare"
+    ],
+    "witnesses": {
+     "true": {
+      "spare": true
+     },
+     "false": {
+      "spare": false
+     }
+    }
+   }
+  },
+  {
+   "id": "contract_example",
+   "description": "The example result document of the design contract",
+   "rules": {
+    "schema_version": "1",
+    "atoms": [
+     "is_adult",
+     "is_banned"
+    ],
+    "rules": {
+     "eligible": {
+      "all": [
+       "is_adult",
+       {
+        "not": "is_banned"
+       }
+      ]
+     }
+    }
+   },
+   "goal": "eligible",
+   "evidence": {
+    "is_adult": true
+   },
+   "expected": {
+    "status": "UNKNOWN",
+    "certificate": null,
+    "relevant_unknowns": [
+     "is_banned"
+    ],
+    "witnesses": {
+     "true": {
+      "is_adult": true,
+      "is_banned": false
+     },
+     "false": {
+      "is_adult": true,
+      "is_banned": true
+     }
+    }
+   }
+  }
+ ]
+}

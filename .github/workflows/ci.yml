@@ -1,0 +1,163 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: pip install -e '.[dev]'
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy
+
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.11", "3.12", "3.13", "3.14"]
+        include:
+          # macOS and Windows minutes are expensive on private repositories: oldest and newest only.
+          - { os: windows-latest, python: "3.11" }
+          - { os: windows-latest, python: "3.14" }
+          - { os: macos-latest, python: "3.11" }
+          - { os: macos-latest, python: "3.14" }
+    env:
+      HYPOTHESIS_PROFILE: ci
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: pip install -e '.[dev]'
+      - name: Tests
+        if: ${{ !(matrix.os == 'ubuntu-latest' && matrix.python == '3.12') }}
+        run: pytest -m "not slow"
+      - name: Tests with coverage
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.12' }}
+        run: pytest -m "not slow" --cov=askcert --cov-branch --cov-report=xml --cov-fail-under=90
+      - name: Upload coverage report
+        if: ${{ always() && matrix.os == 'ubuntu-latest' && matrix.python == '3.12' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: ignore
+
+  correctness-corpus:
+    name: correctness corpus (10,000 pairs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: pip install -e '.[dev]'
+      - run: pytest -m slow
+
+  package:
+    name: package (build, check, install from wheel and sdist)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install build twine
+          python -m build
+          twine check --strict dist/*
+      - name: Inspect the wheel
+        run: |
+          python - <<'PY'
+          import glob
+          import zipfile
+
+          (wheel,) = glob.glob("dist/*.whl")
+          names = zipfile.ZipFile(wheel).namelist()
+          assert "askcert/py.typed" in names, "py.typed missing from the wheel"
+          bad = [n for n in names if n.split("/")[0] in {"tests", "examples", "docs", "benchmarks"}]
+          assert not bad, f"unexpected files in the wheel: {bad}"
+          print(f"{wheel}: {len(names)} files, py.typed present, no tests")
+          PY
+      - name: Install and run from the wheel and from the sdist (fresh venvs outside the checkout)
+        run: |
+          set -euo pipefail
+          src="$PWD"
+          for kind in wheel sdist; do
+            echo "::group::$kind"
+            venv="$RUNNER_TEMP/venv-$kind"
+            python -m venv "$venv"
+            if [ "$kind" = wheel ]; then
+              # no index: the wheel must install on its own, the runtime has no dependencies
+              "$venv/bin/python" -m pip install --no-index --no-deps "$src"/dist/*.whl
+            else
+              "$venv/bin/python" -m pip install "$src"/dist/*.tar.gz
+            fi
+            # import from a directory without any askcert source on the path
+            (cd "$RUNNER_TEMP" && "$venv/bin/python" -c "import askcert; assert 'site-packages' in askcert.__file__, askcert.__file__; print(askcert.__version__)")
+            "$venv/bin/askcert" --version
+            "$venv/bin/askcert" certify \
+              --rules examples/data/eligibility_rules.json \
+              --evidence examples/data/eligibility_evidence.json \
+              --goal eligible
+            for example in examples/*.py; do
+              echo "--- $example"
+              "$venv/bin/python" "$example" > /dev/null
+            done
+            echo "::endgroup::"
+          done
+      - name: Upload distributions
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  audit:
+    name: dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      # The runtime has no dependencies, so this audits the development environment only.
+      - run: pip install -e '.[dev]' pip-audit
+      - run: pip-audit --skip-editable
